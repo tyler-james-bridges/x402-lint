@@ -21,12 +21,12 @@ jobs:
           node server.js &
           sleep 2
 
-      - name: lint our own bankr endpoint
+      - name: lint a known x402 endpoint
         run: |
-          echo "linting our own x402 endpoint..."
+          echo "linting ordiscan x402 endpoint..."
           curl -sf -X POST http://localhost:8402/api/lint \
             -H "Content-Type: application/json" \
-            -d '{"url": "https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint"}' | tee result.json | jq .
+            -d '{"url": "https://api.ordiscan.com/v1/inscription/0"}' | tee result.json | jq .
 
       - name: check grade
         run: |
@@ -34,6 +34,18 @@ jobs:
           SCORE=$(jq -r .score result.json)
           echo "grade: $GRADE ($SCORE/100)"
           if [ "$GRADE" = "F" ]; then
-            echo "our own endpoint failed lint"
+            echo "endpoint failed lint — our linter may be broken"
+            exit 1
+          fi
+
+      - name: health check a known endpoint
+        run: |
+          curl -sf -X POST http://localhost:8402/api/health \
+            -H "Content-Type: application/json" \
+            -d '{"url": "https://api.ordiscan.com/v1/inscription/0"}' | tee health.json | jq .
+          X402=$(jq -r .x402 health.json)
+          echo "x402: $X402"
+          if [ "$X402" != "true" ]; then
+            echo "health check failed to detect x402"
             exit 1
           fi
