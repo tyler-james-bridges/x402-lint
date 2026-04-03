@@ -1,14 +1,83 @@
-export default function handler(req, res) {
-  const svg = `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1200" height="630" fill="#000"/>
-    <text x="600" y="220" font-family="monospace" font-size="72" font-weight="bold" fill="#fff" text-anchor="middle">0x402.sh</text>
-    <text x="600" y="310" font-family="monospace" font-size="28" fill="#666" text-anchor="middle">x402 compliance checker -- paid via x402</text>
-    <text x="600" y="400" font-family="monospace" font-size="22" fill="#444" text-anchor="middle">lint any x402 endpoint -- get graded A-F against the V2 spec</text>
-    <text x="600" y="460" font-family="monospace" font-size="18" fill="#333" text-anchor="middle">$0.01 USDC / check -- Base (eip155:8453)</text>
-    <text x="600" y="560" font-family="monospace" font-size="16" fill="#333" text-anchor="middle">built by @tmoney_145 -- deployed on bankr x402 cloud</text>
-  </svg>`;
+import { ImageResponse } from '@vercel/og';
 
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.status(200).send(svg);
+export const config = { runtime: 'edge' };
+
+export default function handler() {
+  return new ImageResponse(
+    {
+      type: 'div',
+      props: {
+        style: {
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#000',
+          fontFamily: 'monospace',
+        },
+        children: [
+          {
+            type: 'div',
+            props: {
+              style: {
+                fontSize: 72,
+                fontWeight: 'bold',
+                color: '#fff',
+                letterSpacing: '0.1em',
+              },
+              children: '0x402.sh',
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: {
+                fontSize: 28,
+                color: '#666',
+                marginTop: 20,
+                letterSpacing: '0.05em',
+              },
+              children: 'x402 compliance checker -- paid via x402',
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: {
+                fontSize: 22,
+                color: '#444',
+                marginTop: 30,
+              },
+              children: 'lint any endpoint -- get graded A-F against the V2 spec',
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: {
+                fontSize: 18,
+                color: '#333',
+                marginTop: 20,
+              },
+              children: '$0.01 USDC / check -- Base (eip155:8453)',
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: {
+                fontSize: 16,
+                color: '#333',
+                marginTop: 40,
+              },
+              children: 'built by @tmoney_145 -- deployed on bankr x402 cloud',
+            },
+          },
+        ],
+      },
+    },
+    { width: 1200, height: 630 }
+  );
 }
