@@ -43,7 +43,7 @@ const res = await paidFetch(
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url: "https://your-x402-endpoint.com/api" }),
+    body: JSON.stringify({ url: "https://api.ordiscan.com/v1/inscription/0" }),
   }
 );
 
@@ -125,7 +125,7 @@ curl -X POST http://localhost:8402/api/lint \
 **Input:**
 ```json
 {
-  "url": "https://your-x402-endpoint.com/api"
+  "url": "https://api.ordiscan.com/v1/inscription/0"
 }
 ```
 

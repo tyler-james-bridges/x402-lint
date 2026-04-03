@@ -22,7 +22,8 @@ jobs:
         run: npx eslint . --ext .js
 
       - name: typecheck handler
-        run: npx tsc --noEmit --strict --moduleResolution node --target ES2022 --module ES2022 x402/lint/index.ts x402/health/index.ts || true
+        run: npx tsc --noEmit --strict --moduleResolution node --target ES2022 --module ES2022 x402/lint/index.ts x402/health/index.ts
+        continue-on-error: true
 
       - name: smoke test local server
         run: |
