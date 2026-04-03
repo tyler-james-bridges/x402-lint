@@ -11,7 +11,16 @@
   "devDependencies": {
     "eslint": "^9.0.0"
   },
-  "keywords": ["x402", "lint", "compliance", "payments", "bankr"],
+  "keywords": [
+    "x402",
+    "lint",
+    "compliance",
+    "payments",
+    "bankr"
+  ],
   "author": "tmoney_145",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
 }
