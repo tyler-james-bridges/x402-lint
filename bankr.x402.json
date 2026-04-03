@@ -1,0 +1,36 @@
+{
+  "network": "base",
+  "currency": "USDC",
+  "services": {
+    "lint": {
+      "description": "x402 compliance linter — validate any x402-enabled API endpoint against the V2 spec",
+      "price": "0.01",
+      "methods": ["POST"],
+      "schema": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The x402-enabled endpoint URL to validate"
+            }
+          },
+          "required": ["url"]
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "ok": { "type": "boolean", "description": "Whether the endpoint passes basic compliance" },
+            "grade": { "type": "string", "description": "Letter grade A-F" },
+            "score": { "type": "number", "description": "Numeric score 0-100" },
+            "findings": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List of compliance findings"
+            }
+          }
+        }
+      }
+    }
+  }
+}

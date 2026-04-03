@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>x402 lint</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+      background: #000;
+      color: #f5f5f5;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.5rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.25rem;
+      color: #fff;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.875rem;
+    }
+    input::placeholder { color: #666; }
+    input:focus { outline: 2px solid #e2a727; outline-offset: -2px; border-color: #e2a727; }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #fff;
+      border: 2px solid #fff;
+      color: #000;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: 0.875rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    button:hover { background: #000; color: #fff; }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .report { margin-top: 1rem; }
+    .grade-card {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      background: #000;
+      border: 2px solid #fff;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .grade-circle {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      flex-shrink: 0;
+      color: #fff;
+    }
+    .grade-A { border-color: #00ff94; color: #00ff94; }
+    .grade-B { border-color: #e2a727; color: #e2a727; }
+    .grade-C { border-color: #e2a727; color: #e2a727; }
+    .grade-D { border-color: #ff4444; color: #ff4444; }
+    .grade-F { border-color: #ff4444; color: #ff4444; }
+
+    .grade-info { flex: 1; }
+    .grade-url {
+      color: #666;
+      font-size: 0.75rem;
+      word-break: break-all;
+      margin-bottom: 0.5rem;
+    }
+    .grade-score { font-size: 1rem; color: #fff; }
+    .grade-version {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border: 1px solid #666;
+      font-size: 0.7rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .findings {
+      background: #000;
+      border: 2px solid #333;
+      padding: 1.5rem;
+    }
+    .findings h3 {
+      margin-bottom: 1rem;
+      color: #666;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+    }
+    .finding {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #222;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #ccc;
+    }
+    .finding:last-child { border-bottom: none; }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+      font-size: 0.875rem;
+      letter-spacing: 0.1em;
+    }
+    .loading .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #333;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .history { margin-top: 3rem; }
+    .history h3 {
+      color: #444;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      border: 1px solid #222;
+      margin-bottom: -1px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.1s;
+    }
+    .history-item:hover { border-color: #fff; background: #0a0a0a; }
+    .history-grade {
+      font-weight: bold;
+      width: 2rem;
+      text-align: center;
+    }
+    .history-url {
+      flex: 1;
+      margin-left: 1rem;
+      color: #666;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border: 1px solid #00ff94;
+      font-size: 0.65rem;
+      font-weight: bold;
+      color: #00ff94;
+      letter-spacing: 0.05em;
+      margin-left: 0.5rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #222;
+      color: #333;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+    }
+    .footer a { color: #666; text-decoration: none; }
+    .footer a:hover { color: #fff; }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .grade-card { flex-direction: column; gap: 1rem; padding: 1.5rem; text-align: center; }
+      .grade-circle { width: 80px; height: 80px; font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>x402 lint</h1>
+    <p class="subtitle">compliance checker -- $0.01/check via x402</p>
+
+    <div class="input-row">
+      <input type="text" id="url-input" placeholder="x402-enabled endpoint url..." />
+      <button id="lint-btn" onclick="runLint()">lint</button>
+    </div>
+
+    <div id="result"></div>
+
+    <div id="history-section" class="history" style="display:none">
+      <h3>recent checks</h3>
+      <div id="history-list"></div>
+    </div>
+
+    <div class="footer">
+      <p>built on <a href="https://x402.org" target="_blank">x402</a> / <a href="https://bankr.bot" target="_blank">bankr</a></p>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/lint';
+    let history = JSON.parse(localStorage.getItem('x402lint_history') || '[]');
+
+    renderHistory();
+
+    document.getElementById('url-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') runLint();
+    });
+
+    async function runLint() {
+      const url = document.getElementById('url-input').value.trim();
+      if (!url) return;
+
+      const btn = document.getElementById('lint-btn');
+      btn.disabled = true;
+      btn.textContent = 'linting...';
+
+      document.getElementById('result').innerHTML = `
+        <div class="loading"><span class="spinner"></span> linting ${escapeHtml(url)}...</div>
+      `;
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (res.status === 402) {
+          document.getElementById('result').innerHTML = `
+            <div class="grade-card">
+              <div class="grade-circle">402</div>
+              <div class="grade-info">
+                <div class="grade-url">${escapeHtml(API)}</div>
+                <div class="grade-score">this endpoint requires x402 payment</div>
+                <div class="grade-version">use bankr x402 call from cli</div>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const data = await res.json();
+        renderReport(data);
+
+        history.unshift({ url: data.targetUrl, grade: data.grade, score: data.score, time: Date.now() });
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem('x402lint_history', JSON.stringify(history));
+        renderHistory();
+
+      } catch (err) {
+        document.getElementById('result').innerHTML = `
+          <div class="loading" style="color: #ff4444;">error: ${escapeHtml(err.message)}</div>
+        `;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'lint';
+      }
+    }
+
+    function renderReport(data) {
+      const gradeClass = `grade-${data.grade || 'F'}`;
+      document.getElementById('result').innerHTML = `
+        <div class="report">
+          <div class="grade-card">
+            <div class="grade-circle ${gradeClass}">${data.grade || '?'}</div>
+            <div class="grade-info">
+              <div class="grade-url">${escapeHtml(data.targetUrl || '')}</div>
+              <div class="grade-score">score: ${data.score}/100 -- http ${data.status}</div>
+              ${data.version ? `<span class="grade-version">${escapeHtml(data.version)}</span>` : ''}
+              <span class="badge">paid via x402</span>
+            </div>
+          </div>
+          <div class="findings">
+            <h3>findings</h3>
+            ${(data.findings || []).map(f => `<div class="finding">${escapeHtml(f)}</div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHistory() {
+      if (history.length === 0) {
+        document.getElementById('history-section').style.display = 'none';
+        return;
+      }
+      document.getElementById('history-section').style.display = 'block';
+      const gradeColors = { A: '#00ff94', B: '#e2a727', C: '#e2a727', D: '#ff4444', F: '#ff4444' };
+      document.getElementById('history-list').innerHTML = history.map(h => `
+        <div class="history-item" onclick="document.getElementById('url-input').value='${escapeHtml(h.url)}';runLint()">
+          <span class="history-grade" style="color:${gradeColors[h.grade] || '#666'}">${h.grade}</span>
+          <span class="history-url">${escapeHtml(h.url)}</span>
+          <span style="color:#444;font-size:0.7rem">${h.score}/100</span>
+        </div>
+      `).join('');
+    }
+
+    function loadDemo(data) {
+      renderReport(data);
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
