@@ -8,12 +8,12 @@ x402 compliance checker — validate any x402-enabled API endpoint against the V
 
 Give it any URL. It hits the endpoint and checks:
 
-- ✅ Returns HTTP 402 Payment Required
-- ✅ V2 `PAYMENT-REQUIRED` header present (not legacy `X-Payment`)
-- ✅ Valid base64-encoded JSON payload
-- ✅ Payment options with scheme, network (CAIP-2), payTo, price
-- ✅ Description metadata
-- ⚠️ Flags deprecated V1 headers and patterns
+- Returns HTTP 402 Payment Required
+- V2 `PAYMENT-REQUIRED` header present (not legacy `X-Payment`)
+- Valid base64-encoded JSON payload
+- Payment options with scheme, network (CAIP-2), payTo, price
+- Description metadata
+- Flags deprecated V1 headers and patterns
 
 Returns a letter grade (A-F), numeric score (0-100), and detailed findings.
 
@@ -116,9 +116,9 @@ curl -X POST http://localhost:8402/api/lint \
 
 ## Stack
 
-- **Bankr x402 Cloud** — hosting + x402 payment layer
-- **Node.js** — local server
-- **x402 V2 spec** — what we lint against
+- Bankr x402 Cloud — hosting + x402 payment layer
+- Node.js — local server
+- x402 V2 spec — what we lint against
 
 ## Schema
 
