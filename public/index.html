@@ -102,6 +102,27 @@
       padding: 0 0.15rem;
     }
 
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1rem;
+    }
+    .mode-btn {
+      padding: 0.4rem 1rem;
+      background: transparent;
+      border: 1px solid #333;
+      color: #666;
+      font-family: inherit;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-right: -1px;
+    }
+    .mode-btn:hover { color: #fff; border-color: #666; }
+    .mode-btn.active { border-color: #fff; color: #fff; }
+
     /* Input */
     .input-row {
       display: flex;
@@ -366,10 +387,16 @@
       </div>
     </div>
 
-    <!-- Lint Input -->
+    <!-- Mode Toggle -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-lint" onclick="setMode('lint')">lint</button>
+      <button class="mode-btn" id="mode-health" onclick="setMode('health')">health</button>
+    </div>
+
+    <!-- Input -->
     <div class="input-row">
       <input type="text" id="url-input" placeholder="x402-enabled endpoint url..." />
-      <button id="lint-btn" onclick="runLint()">lint</button>
+      <button id="run-btn" onclick="run()">lint</button>
     </div>
 
     <div id="result"></div>
@@ -422,19 +449,79 @@ curl -X POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/l
   </div>
 
   <script>
+    let mode = 'lint';
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('mode-lint').classList.toggle('active', m === 'lint');
+      document.getElementById('mode-health').classList.toggle('active', m === 'health');
+      document.getElementById('run-btn').textContent = m;
+    }
+
+    function run() {
+      if (mode === 'lint') runLint();
+      else runHealth();
+    }
+
     const API = '/api/lint';
     let history = JSON.parse(localStorage.getItem('x402lint_history') || '[]');
     renderHistory();
 
     document.getElementById('url-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') runLint();
+      if (e.key === 'Enter') run();
     });
+
+    async function runHealth() {
+      const url = document.getElementById('url-input').value.trim();
+      if (!url) return;
+
+      const btn = document.getElementById('run-btn');
+      btn.disabled = true;
+      btn.textContent = 'checking...';
+
+      document.getElementById('result').innerHTML = `
+        <div class="loading"><span class="spinner"></span> checking ${escapeHtml(url)}...</div>
+      `;
+
+      try {
+        const res = await fetch('/api/health', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        const data = await res.json();
+        const status = data.x402 ? 'x402' : data.alive ? 'alive' : 'dead';
+        const statusColor = data.x402 ? '#00ff94' : data.alive ? '#e2a727' : '#ff4444';
+        const statusLabel = data.x402 ? 'x402 ACTIVE' : data.alive ? 'ALIVE (not x402)' : 'UNREACHABLE';
+
+        document.getElementById('result').innerHTML = `
+          <div class="grade-card">
+            <div class="grade-circle" style="border-color:${statusColor};color:${statusColor};font-size:1.5rem">${status}</div>
+            <div class="grade-info">
+              <div class="grade-url">${escapeHtml(data.targetUrl || url)}</div>
+              <div class="grade-score">${statusLabel}${data.status ? ' -- http ' + data.status : ''}</div>
+              <div class="grade-meta">
+                <span class="tag">${data.hasPaymentHeader ? 'payment header found' : 'no payment header'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('result').innerHTML = `
+          <div class="loading" style="color: #ff4444;">error: ${escapeHtml(err.message)}</div>
+        `;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'health';
+      }
+    }
 
     async function runLint() {
       const url = document.getElementById('url-input').value.trim();
       if (!url) return;
 
-      const btn = document.getElementById('lint-btn');
+      const btn = document.getElementById('run-btn');
       btn.disabled = true;
       btn.textContent = 'linting...';
 
@@ -477,7 +564,7 @@ curl -X POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/l
         `;
       } finally {
         btn.disabled = false;
-        btn.textContent = 'lint';
+        btn.textContent = mode;
       }
     }
 
