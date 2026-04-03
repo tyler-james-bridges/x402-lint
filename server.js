@@ -209,7 +209,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   let filePath = req.url === '/' ? '/index.html' : req.url;
-  filePath = path.join(__dirname, filePath);
+  filePath = path.join(__dirname, 'public', filePath);
 
   const ext = path.extname(filePath);
   const types = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json' };

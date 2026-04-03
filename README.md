@@ -1,10 +1,22 @@
 # x402-lint
 
+```
+           __    __   ______    ______          __  __              __     
+          /  |  /  | /      \  /      \        /  |/  |            /  |    
+ __    __ $$ |  $$ |/$$$$$$  |/$$$$$$  |       $$ |$$/  _______   _$$ |_   
+/  \  /  |$$ |__$$ |$$$  \$$ |$$____$$ |______ $$ |/  |/       \ / $$   |  
+$$  \/$$/ $$    $$ |$$$$  $$ | /    $$//      |$$ |$$ |$$$$$$$  |$$$$$$/   
+ $$  $$<  $$$$$$$$ |$$ $$ $$ |/$$$$$$/ $$$$$$/ $$ |$$ |$$ |  $$ |  $$ | __ 
+ /$$$$  \       $$ |$$ \$$$$ |$$ |_____        $$ |$$ |$$ |  $$ |  $$ |/  |
+/$$/ $$  |      $$ |$$   $$$/ $$       |       $$ |$$ |$$ |  $$ |  $$  $$/ 
+$$/   $$/       $$/  $$$$$$/  $$$$$$$$/        $$/ $$/ $$/   $$/    $$$$/  
+```
+
 x402 compliance checker — validate any x402-enabled API endpoint against the V2 spec. Paid via x402.
 
 **yo dawg I heard you like x402 so I put x402 behind x402**
 
-[0x402.sh](https://0x402.sh) | [Bankr x402 Cloud](https://bankr.bot/x402) | [x402.org](https://x402.org)
+[0x402.sh](https://0x402.sh) | [Bankr x402 Cloud](https://bankr.bot/x402) | [x402.org](https://x402.org) | [x402 spec](https://github.com/x402-foundation/x402)
 
 ## What it does
 
