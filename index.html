@@ -3,124 +3,236 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>x402 lint</title>
+  <title>x402 Lint — Compliance Checker</title>
+  <meta name="description" content="x402 compliance checker — validate any x402 API endpoint against the V2 spec. $0.01/check via x402.">
+  <meta property="og:title" content="x402 Lint — Compliance Checker">
+  <meta property="og:description" content="Grade any x402 API endpoint A-F against the V2 spec. Paid via x402.">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-      background: #000;
-      color: #f5f5f5;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
       min-height: 100vh;
-      padding: 1.5rem;
+      padding: 2rem;
     }
-    .container { max-width: 720px; margin: 0 auto; }
+    .container { max-width: 860px; margin: 0 auto; }
 
+    /* Header */
     h1 {
-      font-size: 1.5rem;
-      letter-spacing: 0.15em;
+      font-size: 2.8rem;
+      text-align: center;
       margin-bottom: 0.25rem;
-      color: #fff;
+      background: linear-gradient(135deg, #00ff88, #00aaff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .subtitle {
+      text-align: center;
       color: #666;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .meta-badge {
+      text-align: center;
+      margin-bottom: 2rem;
       font-size: 0.75rem;
-      letter-spacing: 0.1em;
+      color: #444;
+    }
+    .meta-badge span {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin: 0 0.25rem;
+    }
+    .badge-x402 { background: #00ff8818; color: #00ff88; border: 1px solid #00ff8833; }
+    .badge-bankr { background: #00aaff18; color: #00aaff; border: 1px solid #00aaff33; }
+    .badge-base { background: #3773f518; color: #3773f5; border: 1px solid #3773f533; }
+
+    /* Endpoint Card */
+    .endpoint-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 1.5rem;
       margin-bottom: 2rem;
     }
+    .endpoint-card h3 {
+      color: #888;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .endpoint-url {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .method-tag {
+      background: #00ff8833;
+      color: #00ff88;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .url-text {
+      color: #aaa;
+      font-size: 0.85rem;
+      word-break: break-all;
+    }
+    .endpoint-details {
+      display: flex;
+      gap: 2rem;
+      color: #666;
+      font-size: 0.8rem;
+    }
+    .endpoint-details span { display: flex; align-items: center; gap: 0.3rem; }
 
+    /* Flow */
+    .flow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+    .flow-step {
+      text-align: center;
+      flex: 1;
+    }
+    .flow-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #1a1a2e;
+      border: 1px solid #333;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #00aaff;
+      margin-bottom: 0.4rem;
+    }
+    .flow-label {
+      font-size: 0.7rem;
+      color: #555;
+      line-height: 1.3;
+    }
+    .flow-arrow {
+      color: #333;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      padding: 0 0.25rem;
+    }
+
+    /* Input */
     .input-row {
       display: flex;
-      gap: 0;
+      gap: 0.5rem;
       margin-bottom: 2rem;
     }
     input[type="text"] {
       flex: 1;
       padding: 0.75rem 1rem;
-      background: transparent;
-      border: 2px solid #fff;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
       color: #fff;
       font-family: inherit;
-      font-size: 0.875rem;
+      font-size: 1rem;
     }
-    input::placeholder { color: #666; }
-    input:focus { outline: 2px solid #e2a727; outline-offset: -2px; border-color: #e2a727; }
+    input:focus { outline: none; border-color: #00ff88; }
     button {
       padding: 0.75rem 1.5rem;
-      background: #fff;
-      border: 2px solid #fff;
+      background: linear-gradient(135deg, #00ff88, #00aaff);
+      border: none;
+      border-radius: 8px;
       color: #000;
       font-weight: bold;
       font-family: inherit;
-      font-size: 0.875rem;
-      letter-spacing: 0.1em;
+      font-size: 1rem;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: opacity 0.15s;
     }
-    button:hover { background: #000; color: #fff; }
-    button:disabled { opacity: 0.3; cursor: not-allowed; }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* Results */
     .report { margin-top: 1rem; }
     .grade-card {
       display: flex;
       align-items: center;
       gap: 2rem;
-      background: #000;
-      border: 2px solid #fff;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
       padding: 2rem;
       margin-bottom: 1.5rem;
     }
     .grade-circle {
-      width: 100px;
-      height: 100px;
-      border: 2px solid #fff;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
+      font-size: 3.5rem;
       font-weight: bold;
       flex-shrink: 0;
-      color: #fff;
     }
-    .grade-A { border-color: #00ff94; color: #00ff94; }
-    .grade-B { border-color: #e2a727; color: #e2a727; }
-    .grade-C { border-color: #e2a727; color: #e2a727; }
-    .grade-D { border-color: #ff4444; color: #ff4444; }
-    .grade-F { border-color: #ff4444; color: #ff4444; }
+    .grade-A { background: #00ff8822; border: 3px solid #00ff88; color: #00ff88; }
+    .grade-B { background: #88ff0022; border: 3px solid #88ff00; color: #88ff00; }
+    .grade-C { background: #ffaa0022; border: 3px solid #ffaa00; color: #ffaa00; }
+    .grade-D { background: #ff660022; border: 3px solid #ff6600; color: #ff6600; }
+    .grade-F { background: #ff220022; border: 3px solid #ff2222; color: #ff2222; }
 
     .grade-info { flex: 1; }
     .grade-url {
-      color: #666;
-      font-size: 0.75rem;
+      color: #888;
+      font-size: 0.8rem;
       word-break: break-all;
       margin-bottom: 0.5rem;
     }
-    .grade-score { font-size: 1rem; color: #fff; }
-    .grade-version {
+    .grade-score { font-size: 1.4rem; color: #fff; }
+    .grade-meta {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .tag {
       display: inline-block;
       padding: 0.15rem 0.5rem;
-      border: 1px solid #666;
+      border-radius: 4px;
       font-size: 0.7rem;
-      color: #999;
-      margin-top: 0.5rem;
+      font-weight: bold;
     }
+    .tag-version { background: #1a1a2e; color: #00aaff; }
+    .tag-paid { background: #00ff8833; color: #00ff88; }
+    .tag-status { background: #ffffff11; color: #888; }
 
     .findings {
-      background: #000;
-      border: 2px solid #333;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
       padding: 1.5rem;
     }
     .findings h3 {
       margin-bottom: 1rem;
-      color: #666;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
+      color: #888;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
     .finding {
       padding: 0.5rem 0;
-      border-bottom: 1px solid #222;
-      font-size: 0.8rem;
-      line-height: 1.6;
-      color: #ccc;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 0.9rem;
+      line-height: 1.5;
     }
     .finding:last-child { border-bottom: none; }
 
@@ -128,15 +240,14 @@
       text-align: center;
       padding: 3rem;
       color: #666;
-      font-size: 0.875rem;
-      letter-spacing: 0.1em;
+      font-size: 1.1rem;
     }
-    .loading .spinner {
+    .spinner {
       display: inline-block;
-      width: 14px;
-      height: 14px;
+      width: 20px;
+      height: 20px;
       border: 2px solid #333;
-      border-top-color: #fff;
+      border-top-color: #00ff88;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       margin-right: 0.5rem;
@@ -144,11 +255,13 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* History */
     .history { margin-top: 3rem; }
     .history h3 {
       color: #444;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
       margin-bottom: 1rem;
     }
     .history-item {
@@ -156,13 +269,14 @@
       justify-content: space-between;
       align-items: center;
       padding: 0.6rem 1rem;
-      border: 1px solid #222;
-      margin-bottom: -1px;
+      background: #111;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
       cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.1s;
+      font-size: 0.85rem;
+      transition: background 0.15s;
     }
-    .history-item:hover { border-color: #fff; background: #0a0a0a; }
+    .history-item:hover { background: #1a1a1a; }
     .history-grade {
       font-weight: bold;
       width: 2rem;
@@ -171,68 +285,185 @@
     .history-url {
       flex: 1;
       margin-left: 1rem;
-      color: #666;
+      color: #888;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 0.15rem 0.5rem;
-      border: 1px solid #00ff94;
-      font-size: 0.65rem;
-      font-weight: bold;
-      color: #00ff94;
-      letter-spacing: 0.05em;
-      margin-left: 0.5rem;
+    /* Code block */
+    .code-section {
+      margin-top: 3rem;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 1.5rem;
     }
+    .code-section h3 {
+      color: #888;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+    .code-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .code-tab {
+      padding: 0.3rem 0.8rem;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #888;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .code-tab.active { border-color: #00ff88; color: #00ff88; background: #00ff8811; }
+    pre {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .code-key { color: #00aaff; }
+    .code-str { color: #00ff88; }
+    .code-comment { color: #555; }
 
+    /* Footer */
     .footer {
       text-align: center;
       margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #222;
+      padding-top: 2rem;
+      border-top: 1px solid #1a1a1a;
       color: #333;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
+      font-size: 0.75rem;
     }
-    .footer a { color: #666; text-decoration: none; }
-    .footer a:hover { color: #fff; }
+    .footer a { color: #00aaff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
 
     @media (max-width: 600px) {
       body { padding: 1rem; }
-      .grade-card { flex-direction: column; gap: 1rem; padding: 1.5rem; text-align: center; }
-      .grade-circle { width: 80px; height: 80px; font-size: 2.5rem; }
+      h1 { font-size: 2rem; }
+      .grade-card { flex-direction: column; text-align: center; gap: 1rem; }
+      .flow { flex-wrap: wrap; gap: 0.5rem; }
+      .flow-arrow { display: none; }
+      .endpoint-details { flex-direction: column; gap: 0.5rem; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>x402 lint</h1>
-    <p class="subtitle">compliance checker -- $0.01/check via x402</p>
+    <p class="subtitle">x402 compliance checker — grade any endpoint against the V2 spec</p>
+    <div class="meta-badge">
+      <span class="badge-x402">x402</span>
+      <span class="badge-bankr">Bankr x402 Cloud</span>
+      <span class="badge-base">USDC on Base</span>
+    </div>
 
+    <!-- Endpoint Info -->
+    <div class="endpoint-card">
+      <h3>Live API Endpoint</h3>
+      <div class="endpoint-url">
+        <span class="method-tag">POST</span>
+        <span class="url-text">https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint</span>
+      </div>
+      <div class="endpoint-details">
+        <span>💰 $0.01 USDC/check</span>
+        <span>⛓ Base (eip155:8453)</span>
+        <span>📦 Body: <code>{"url": "..."}</code></span>
+        <span>↩ Returns: LintReport</span>
+      </div>
+    </div>
+
+    <!-- x402 Payment Flow -->
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-label">Send POST<br>with target URL</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-label">Receive 402<br>Payment Required</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-label">Pay $0.01<br>USDC on Base</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-label">Retry with<br>payment proof</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-label">Get lint<br>report A-F</div>
+      </div>
+    </div>
+
+    <!-- Lint Input -->
     <div class="input-row">
-      <input type="text" id="url-input" placeholder="x402-enabled endpoint url..." />
-      <button id="lint-btn" onclick="runLint()">lint</button>
+      <input type="text" id="url-input" placeholder="Paste any x402-enabled endpoint URL..." />
+      <button id="lint-btn" onclick="runLint()">Lint</button>
     </div>
 
     <div id="result"></div>
 
     <div id="history-section" class="history" style="display:none">
-      <h3>recent checks</h3>
+      <h3>Recent Checks</h3>
       <div id="history-list"></div>
     </div>
 
+    <!-- Code Examples -->
+    <div class="code-section">
+      <h3>Agent Usage</h3>
+      <div class="code-tabs">
+        <button class="code-tab active" onclick="showTab('bankr')">Bankr CLI</button>
+        <button class="code-tab" onclick="showTab('fetch')">x402-fetch</button>
+        <button class="code-tab" onclick="showTab('curl')">curl</button>
+      </div>
+      <pre id="code-bankr"><span class="code-comment"># Interactive mode — prompts for URL input</span>
+bankr x402 call https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint -i</pre>
+      <pre id="code-fetch" style="display:none"><span class="code-key">import</span> { wrapFetchWithPayment } <span class="code-key">from</span> <span class="code-str">"@x402/fetch"</span>;
+
+<span class="code-key">const</span> paidFetch = wrapFetchWithPayment(fetch, client);
+
+<span class="code-key">const</span> res = <span class="code-key">await</span> paidFetch(
+  <span class="code-str">"https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint"</span>,
+  {
+    method: <span class="code-str">"POST"</span>,
+    headers: { <span class="code-str">"Content-Type"</span>: <span class="code-str">"application/json"</span> },
+    body: JSON.stringify({ url: <span class="code-str">"https://your-endpoint.com/api"</span> }),
+  }
+);
+
+<span class="code-key">const</span> report = <span class="code-key">await</span> res.json();
+<span class="code-comment">// { ok: true, grade: "B", score: 88, findings: [...] }</span></pre>
+      <pre id="code-curl" style="display:none"><span class="code-comment"># Returns 402 without payment — use with x402 client</span>
+curl -X POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint \
+  -H <span class="code-str">"Content-Type: application/json"</span> \
+  -d <span class="code-str">'{"url": "https://api.ordiscan.com/v1/inscription/0"}'</span></pre>
+    </div>
+
     <div class="footer">
-      <p>built on <a href="https://x402.org" target="_blank">x402</a> / <a href="https://bankr.bot" target="_blank">bankr</a></p>
+      <p>
+        Built by <a href="https://x.com/tmoney_145" target="_blank">@tmoney_145</a> ·
+        Deployed on <a href="https://bankr.bot/x402" target="_blank">Bankr x402 Cloud</a> ·
+        <a href="https://github.com/tyler-james-bridges/x402-lint" target="_blank">GitHub</a> ·
+        <a href="https://x402.org" target="_blank">x402.org</a>
+      </p>
+      <p style="margin-top: 0.5rem;">yo dawg I heard you like x402 so I put x402 behind x402 🚗</p>
     </div>
   </div>
 
   <script>
     const API = '/api/lint';
     let history = JSON.parse(localStorage.getItem('x402lint_history') || '[]');
-
     renderHistory();
 
     document.getElementById('url-input').addEventListener('keydown', (e) => {
@@ -245,10 +476,10 @@
 
       const btn = document.getElementById('lint-btn');
       btn.disabled = true;
-      btn.textContent = 'linting...';
+      btn.textContent = 'Linting...';
 
       document.getElementById('result').innerHTML = `
-        <div class="loading"><span class="spinner"></span> linting ${escapeHtml(url)}...</div>
+        <div class="loading"><span class="spinner"></span> Linting ${escapeHtml(url)}...</div>
       `;
 
       try {
@@ -261,11 +492,11 @@
         if (res.status === 402) {
           document.getElementById('result').innerHTML = `
             <div class="grade-card">
-              <div class="grade-circle">402</div>
+              <div class="grade-circle grade-A" style="font-size:2rem">402</div>
               <div class="grade-info">
                 <div class="grade-url">${escapeHtml(API)}</div>
-                <div class="grade-score">this endpoint requires x402 payment</div>
-                <div class="grade-version">use bankr x402 call from cli</div>
+                <div class="grade-score">x402 payment required</div>
+                <div class="grade-meta"><span class="tag tag-paid">Use bankr x402 call from CLI</span></div>
               </div>
             </div>
           `;
@@ -282,11 +513,11 @@
 
       } catch (err) {
         document.getElementById('result').innerHTML = `
-          <div class="loading" style="color: #ff4444;">error: ${escapeHtml(err.message)}</div>
+          <div class="loading" style="color: #ff4444;">Error: ${escapeHtml(err.message)}</div>
         `;
       } finally {
         btn.disabled = false;
-        btn.textContent = 'lint';
+        btn.textContent = 'Lint';
       }
     }
 
@@ -298,13 +529,16 @@
             <div class="grade-circle ${gradeClass}">${data.grade || '?'}</div>
             <div class="grade-info">
               <div class="grade-url">${escapeHtml(data.targetUrl || '')}</div>
-              <div class="grade-score">score: ${data.score}/100 -- http ${data.status}</div>
-              ${data.version ? `<span class="grade-version">${escapeHtml(data.version)}</span>` : ''}
-              <span class="badge">paid via x402</span>
+              <div class="grade-score">Score: ${data.score}/100</div>
+              <div class="grade-meta">
+                ${data.version ? `<span class="tag tag-version">${escapeHtml(data.version)}</span>` : ''}
+                <span class="tag tag-status">HTTP ${data.status}</span>
+                <span class="tag tag-paid">PAID VIA x402</span>
+              </div>
             </div>
           </div>
           <div class="findings">
-            <h3>findings</h3>
+            <h3>Findings</h3>
             ${(data.findings || []).map(f => `<div class="finding">${escapeHtml(f)}</div>`).join('')}
           </div>
         </div>
@@ -317,18 +551,21 @@
         return;
       }
       document.getElementById('history-section').style.display = 'block';
-      const gradeColors = { A: '#00ff94', B: '#e2a727', C: '#e2a727', D: '#ff4444', F: '#ff4444' };
+      const colors = { A: '#00ff88', B: '#88ff00', C: '#ffaa00', D: '#ff6600', F: '#ff2222' };
       document.getElementById('history-list').innerHTML = history.map(h => `
         <div class="history-item" onclick="document.getElementById('url-input').value='${escapeHtml(h.url)}';runLint()">
-          <span class="history-grade" style="color:${gradeColors[h.grade] || '#666'}">${h.grade}</span>
+          <span class="history-grade" style="color:${colors[h.grade] || '#888'}">${h.grade}</span>
           <span class="history-url">${escapeHtml(h.url)}</span>
-          <span style="color:#444;font-size:0.7rem">${h.score}/100</span>
+          <span style="color:#444;font-size:0.75rem">${h.score}/100</span>
         </div>
       `).join('');
     }
 
-    function loadDemo(data) {
-      renderReport(data);
+    function showTab(tab) {
+      document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('[id^="code-"]').forEach(p => p.style.display = 'none');
+      document.getElementById(`code-${tab}`).style.display = 'block';
+      event.target.classList.add('active');
     }
 
     function escapeHtml(str) {
