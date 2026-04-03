@@ -4,9 +4,11 @@ x402 compliance checker — validate any x402-enabled API endpoint against the V
 
 **yo dawg I heard you like x402 so I put x402 behind x402**
 
+[0x402.sh](https://0x402.sh) | [Bankr x402 Cloud](https://bankr.bot/x402) | [x402.org](https://x402.org)
+
 ## What it does
 
-Give it any URL. It hits the endpoint and checks:
+Give it any URL. It checks:
 
 - Returns HTTP 402 Payment Required
 - V2 `PAYMENT-REQUIRED` header present (not legacy `X-Payment`)
@@ -17,27 +19,40 @@ Give it any URL. It hits the endpoint and checks:
 
 Returns a letter grade (A-F), numeric score (0-100), and detailed findings.
 
-## Live API (x402 Cloud)
+## Endpoints
 
-```
-POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint
-```
+| Endpoint | Price | Description |
+|----------|-------|-------------|
+| `POST .../lint` | $0.01 USDC | Full compliance report with grade A-F |
+| `POST .../health` | $0.001 USDC | Quick check: alive + x402 active? |
 
-**Price:** $0.01 USDC on Base
+Base URL: `https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08`
 
-### Using Bankr CLI
+Chain: Base (eip155:8453) / USDC
+
+## Usage
+
+### Bankr CLI
 
 ```bash
+# full lint
 bankr x402 call https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint -i
+
+# health check
+bankr x402 call https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/health -i
 ```
 
-### Using x402-fetch
+### curl (returns 402 — use with x402 client)
+
+```bash
+curl -X POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://api.ordiscan.com/v1/inscription/0"}'
+```
+
+### x402-fetch
 
 ```typescript
-import { wrapFetchWithPayment } from "@x402/fetch";
-
-const paidFetch = wrapFetchWithPayment(fetch, client);
-
 const res = await paidFetch(
   "https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint",
   {
@@ -46,36 +61,6 @@ const res = await paidFetch(
     body: JSON.stringify({ url: "https://api.ordiscan.com/v1/inscription/0" }),
   }
 );
-
-const report = await res.json();
-// { ok: true, grade: "B", score: 88, findings: [...] }
-```
-
-### Using curl (returns 402 — use with x402 client)
-
-```bash
-curl -X POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://api.ordiscan.com/v1/inscription/0"}'
-```
-
-## Local Development
-
-Run the local server (no x402 payment required):
-
-```bash
-node server.js
-# x402-lint running at http://localhost:8402
-```
-
-Open `http://localhost:8402` for the web UI.
-
-### API
-
-```bash
-curl -X POST http://localhost:8402/api/lint \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://api.ordiscan.com/v1/inscription/0"}'
 ```
 
 ## Example Output
@@ -87,19 +72,19 @@ curl -X POST http://localhost:8402/api/lint \
   "score": 88,
   "targetUrl": "https://api.ordiscan.com/v1/inscription/0",
   "status": 402,
-  "version": "V2",
+  "version": "v2",
   "findings": [
-    "[PASS] Returns HTTP 402 Payment Required",
-    "[PASS] V2 PAYMENT-REQUIRED header present",
-    "[WARN]  Found X-Payment-Required (deprecated, use PAYMENT-REQUIRED)",
-    "[PASS] Payment header is valid base64-encoded JSON",
-    "[PASS] Found 1 payment option(s)",
-    "  Option 1: scheme=\"exact\" [PASS]",
-    "  Option 1: network=\"eip155:8453\" [PASS]",
-    "  Option 1: CAIP-2 network format [PASS]",
-    "  Option 1: payTo present [PASS]",
-    "  Option 1: missing price [FAIL]",
-    "[WARN]  No description metadata (recommended)"
+    "[PASS] returns http 402 payment required",
+    "[PASS] v2 payment-required header present",
+    "[WARN] found x-payment-required (deprecated, use payment-required)",
+    "[PASS] payment header is valid base64-encoded json",
+    "[PASS] found 1 payment option(s)",
+    "  option 1: scheme=\"exact\"",
+    "  option 1: network=\"eip155:8453\"",
+    "  option 1: caip-2 network format",
+    "  option 1: payTo present",
+    "  option 1: missing price",
+    "[WARN] no description metadata (recommended)"
   ]
 }
 ```
@@ -114,40 +99,25 @@ curl -X POST http://localhost:8402/api/lint \
 | D | 45-59 | Significant issues |
 | F | 0-44 | Non-compliant or unreachable |
 
-## Stack
+## Local Development
 
-- Bankr x402 Cloud — hosting + x402 payment layer
-- Node.js — local server
-- x402 V2 spec — what we lint against
-
-## Schema
-
-**Input:**
-```json
-{
-  "url": "https://api.ordiscan.com/v1/inscription/0"
-}
+```bash
+npm install
+node server.js
+# running at http://localhost:8402
 ```
 
-**Output:**
-```json
-{
-  "ok": true,
-  "grade": "A",
-  "score": 95,
-  "targetUrl": "https://...",
-  "status": 402,
-  "version": "V2",
-  "findings": ["..."]
-}
-```
+Open [localhost:8402](http://localhost:8402) for the web UI.
 
-## Built on x402 Day
+## CI
 
-Built live on stream celebrating x402 joining the Linux Foundation (April 2, 2026).
+- **CI** — ESLint + smoke tests on push/PR
+- **x402 Self-Lint** — lints a known x402 endpoint weekly to verify the linter works
 
-The meta: an x402 compliance checker, paid via x402.
+## License
+
+MIT
 
 ---
 
-Built by [@tmoney_145](https://x.com/tmoney_145) · Deployed on [Bankr x402 Cloud](https://bankr.bot/x402)
+Built by [@tmoney_145](https://x.com/tmoney_145) on x402 day (April 2, 2026). Deployed on [Bankr x402 Cloud](https://bankr.bot/x402).
