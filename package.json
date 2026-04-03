@@ -1,0 +1,13 @@
+{
+  "name": "x402-lint",
+  "version": "1.0.0",
+  "description": "x402 compliance checker — validate any x402 API endpoint against the V2 spec",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["x402", "lint", "compliance", "payments", "bankr"],
+  "author": "tmoney_145",
+  "license": "MIT"
+}
