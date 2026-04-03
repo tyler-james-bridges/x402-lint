@@ -23,10 +23,10 @@ async function lint(targetUrl) {
       redirect: 'follow',
       headers: { 'User-Agent': 'x402-lint/1.0' },
     });
-  } catch (e) {
+  } catch (err) {
     return {
       ok: false, grade: 'F', score: 0, targetUrl,
-      findings: [`could not reach endpoint: ${e?.message || 'network error'}`],
+      findings: [`could not reach endpoint: ${err?.message || 'network error'}`],
     };
   }
 
@@ -161,8 +161,8 @@ async function healthCheck(targetUrl) {
       method: 'GET', redirect: 'follow',
       headers: { 'User-Agent': 'x402-lint/1.0' },
     });
-  } catch (e) {
-    return { alive: false, x402: false, targetUrl, error: e?.message || 'network error' };
+  } catch (err) {
+    return { alive: false, x402: false, targetUrl, error: err?.message || 'network error' };
   }
   const is402 = res.status === 402;
   const hasPaymentHeader = Boolean(

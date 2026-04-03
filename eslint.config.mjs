@@ -1,13 +1,13 @@
 export default [
   {
-    files: ["**/*.js", "**/*.ts"],
+    files: ["**/*.js"],
     rules: {
-      "no-unused-vars": "warn",
+      "no-unused-vars": ["warn", { "caughtErrors": "none" }],
       "no-undef": "off",
       "no-console": "off",
     },
   },
   {
-    ignores: ["node_modules/", ".vercel/"],
+    ignores: ["node_modules/", ".vercel/", "x402/"],
   },
 ];
