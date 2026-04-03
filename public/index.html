@@ -374,7 +374,7 @@
         <h1>x402 lint</h1>
         <p class="subtitle">compliance checker -- paid via x402</p>
       </div>
-      <button class="theme-btn" onclick="toggleTheme()">light</button>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="toggle theme">&#9789;</button>
     </div>
 
     <!-- Endpoints Card -->
@@ -468,14 +468,14 @@ curl -X POST https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/l
       const current = html.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', next);
-      document.querySelector('.theme-btn').textContent = next === 'dark' ? 'light' : 'dark';
+      document.querySelector('.theme-btn').innerHTML = next === 'dark' ? '&#9789;' : '&#9788;';
       localStorage.setItem('x402lint_theme', next);
     }
     (function() {
       const saved = localStorage.getItem('x402lint_theme');
       if (saved) {
         document.documentElement.setAttribute('data-theme', saved);
-        if (saved === 'light') document.querySelector('.theme-btn').textContent = 'dark';
+        if (saved === 'light') document.querySelector('.theme-btn').innerHTML = '&#9788;';
       }
     })();
 
