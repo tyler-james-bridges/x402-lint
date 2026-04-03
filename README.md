@@ -2,7 +2,7 @@
 
 x402 compliance checker — validate any x402-enabled API endpoint against the V2 spec. Paid via x402.
 
-**yo dawg I heard you like x402 so I put x402 behind x402** 🚗
+**yo dawg I heard you like x402 so I put x402 behind x402**
 
 ## What it does
 
@@ -146,7 +146,7 @@ curl -X POST http://localhost:8402/api/lint \
 
 Built live on stream celebrating x402 joining the Linux Foundation (April 2, 2026).
 
-The meta: an x402 compliance checker, paid via x402. 🔥
+The meta: an x402 compliance checker, paid via x402.
 
 ---
 
