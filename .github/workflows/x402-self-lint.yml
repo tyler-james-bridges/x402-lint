@@ -1,0 +1,39 @@
+name: x402 Self-Lint
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 12 * * 1' # every Monday at noon UTC
+
+jobs:
+  self-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: start local server
+        run: |
+          node server.js &
+          sleep 2
+
+      - name: lint our own bankr endpoint
+        run: |
+          echo "linting our own x402 endpoint..."
+          curl -sf -X POST http://localhost:8402/api/lint \
+            -H "Content-Type: application/json" \
+            -d '{"url": "https://x402.bankr.bot/0x72e45a93491a6acfd02da6ceb71a903f3d3b6d08/lint"}' | tee result.json | jq .
+
+      - name: check grade
+        run: |
+          GRADE=$(jq -r .grade result.json)
+          SCORE=$(jq -r .score result.json)
+          echo "grade: $GRADE ($SCORE/100)"
+          if [ "$GRADE" = "F" ]; then
+            echo "our own endpoint failed lint"
+            exit 1
+          fi
