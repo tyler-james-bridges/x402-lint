@@ -31,6 +31,31 @@
           }
         }
       }
+    },
+    "health": {
+      "description": "Quick x402 health check — is this endpoint alive and returning 402?",
+      "price": "0.001",
+      "methods": ["POST"],
+      "schema": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The endpoint URL to check"
+            }
+          },
+          "required": ["url"]
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "alive": { "type": "boolean", "description": "Whether the endpoint is reachable" },
+            "x402": { "type": "boolean", "description": "Whether it returns 402 with payment headers" },
+            "status": { "type": "number", "description": "HTTP status code" }
+          }
+        }
+      }
     }
   }
 }

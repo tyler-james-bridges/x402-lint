@@ -148,7 +148,49 @@ async function lint(targetUrl) {
   };
 }
 
+async function healthCheck(targetUrl) {
+  if (!targetUrl || typeof targetUrl !== 'string') {
+    return { alive: false, x402: false, error: "missing 'url' in request body" };
+  }
+  try { new URL(targetUrl); } catch {
+    return { alive: false, x402: false, error: 'invalid url format' };
+  }
+  let res;
+  try {
+    res = await fetch(targetUrl, {
+      method: 'GET', redirect: 'follow',
+      headers: { 'User-Agent': 'x402-lint/1.0' },
+    });
+  } catch (e) {
+    return { alive: false, x402: false, targetUrl, error: e?.message || 'network error' };
+  }
+  const is402 = res.status === 402;
+  const hasPaymentHeader = Boolean(
+    res.headers.get('payment-required') ||
+    res.headers.get('x-payment-required') ||
+    res.headers.get('x-payment')
+  );
+  return { alive: true, x402: is402 && hasPaymentHeader, targetUrl, status: res.status, hasPaymentHeader };
+}
+
 const server = http.createServer(async (req, res) => {
+  if (req.method === 'POST' && req.url === '/api/health') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const parsed = JSON.parse(body);
+        const result = await healthCheck(parsed.url);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ alive: false, x402: false, error: 'invalid request' }));
+      }
+    });
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/api/lint') {
     let body = '';
     req.on('data', chunk => body += chunk);
