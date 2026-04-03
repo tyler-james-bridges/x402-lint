@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - name: lint
+        run: npx eslint . --ext .js,.ts
+
+      - name: typecheck handler
+        run: npx tsc --noEmit --strict --moduleResolution node --target ES2022 --module ES2022 x402/lint/index.ts x402/health/index.ts || true
+
+      - name: smoke test local server
+        run: |
+          node server.js &
+          sleep 2
+          # health check
+          curl -sf -X POST http://localhost:8402/api/health \
+            -H "Content-Type: application/json" \
+            -d '{"url": "https://x402.org"}' | jq .
+          # lint check
+          curl -sf -X POST http://localhost:8402/api/lint \
+            -H "Content-Type: application/json" \
+            -d '{"url": "https://api.ordiscan.com/v1/inscription/0"}' | jq .grade
+          kill %1

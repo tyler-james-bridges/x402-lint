@@ -5,7 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "lint": "eslint . --ext .js,.ts"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
   },
   "keywords": ["x402", "lint", "compliance", "payments", "bankr"],
   "author": "tmoney_145",
