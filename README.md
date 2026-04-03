@@ -89,17 +89,17 @@ curl -X POST http://localhost:8402/api/lint \
   "status": 402,
   "version": "V2",
   "findings": [
-    "✅ Returns HTTP 402 Payment Required",
-    "✅ V2 PAYMENT-REQUIRED header present",
-    "⚠️  Found X-Payment-Required (deprecated, use PAYMENT-REQUIRED)",
-    "✅ Payment header is valid base64-encoded JSON",
-    "✅ Found 1 payment option(s)",
-    "  Option 1: scheme=\"exact\" ✅",
-    "  Option 1: network=\"eip155:8453\" ✅",
-    "  Option 1: CAIP-2 network format ✅",
-    "  Option 1: payTo present ✅",
-    "  Option 1: missing price ❌",
-    "⚠️  No description metadata (recommended)"
+    "[PASS] Returns HTTP 402 Payment Required",
+    "[PASS] V2 PAYMENT-REQUIRED header present",
+    "[WARN]  Found X-Payment-Required (deprecated, use PAYMENT-REQUIRED)",
+    "[PASS] Payment header is valid base64-encoded JSON",
+    "[PASS] Found 1 payment option(s)",
+    "  Option 1: scheme=\"exact\" [PASS]",
+    "  Option 1: network=\"eip155:8453\" [PASS]",
+    "  Option 1: CAIP-2 network format [PASS]",
+    "  Option 1: payTo present [PASS]",
+    "  Option 1: missing price [FAIL]",
+    "[WARN]  No description metadata (recommended)"
   ]
 }
 ```

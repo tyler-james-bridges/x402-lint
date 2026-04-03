@@ -50,10 +50,10 @@ export default async function handler(req: Request): Promise<Response> {
 
     // 2. Check for 402 status
     if (res.status !== 402) {
-      findings.push(`❌ Expected HTTP 402, got ${res.status}`);
+      findings.push(`[FAIL] Expected HTTP 402, got ${res.status}`);
       score -= 40;
     } else {
-      findings.push("✅ Returns HTTP 402 Payment Required");
+      findings.push("[PASS] Returns HTTP 402 Payment Required");
     }
 
     // 3. Check for V2 header (PAYMENT-REQUIRED)
@@ -62,20 +62,20 @@ export default async function handler(req: Request): Promise<Response> {
     const xPaymentRequired = res.headers.get("x-payment-required");
 
     if (paymentRequired) {
-      findings.push("✅ V2 PAYMENT-REQUIRED header present");
+      findings.push("[PASS] V2 PAYMENT-REQUIRED header present");
     } else {
-      findings.push("❌ Missing V2 PAYMENT-REQUIRED header");
+      findings.push("[FAIL] Missing V2 PAYMENT-REQUIRED header");
       score -= 25;
     }
 
     if (xPayment) {
-      findings.push("⚠️  Legacy X-Payment header detected (V1 compat)");
+      findings.push("[WARN]  Legacy X-Payment header detected (V1 compat)");
       score -= 5;
     }
 
     if (xPaymentRequired) {
       findings.push(
-        "⚠️  Found X-Payment-Required (deprecated, use PAYMENT-REQUIRED)"
+        "[WARN]  Found X-Payment-Required (deprecated, use PAYMENT-REQUIRED)"
       );
       score -= 5;
     }
@@ -88,13 +88,13 @@ export default async function handler(req: Request): Promise<Response> {
       try {
         const json = atob(headerVal);
         decoded = JSON.parse(json);
-        findings.push("✅ Payment header is valid base64-encoded JSON");
+        findings.push("[PASS] Payment header is valid base64-encoded JSON");
       } catch {
-        findings.push("❌ Payment header is NOT valid base64 JSON");
+        findings.push("[FAIL] Payment header is NOT valid base64 JSON");
         score -= 25;
       }
     } else {
-      findings.push("❌ No payment requirement header found at all");
+      findings.push("[FAIL] No payment requirement header found at all");
       score -= 20;
     }
 
@@ -107,10 +107,10 @@ export default async function handler(req: Request): Promise<Response> {
         (Array.isArray(decoded) ? decoded : null);
 
       if (!accepts || !Array.isArray(accepts) || accepts.length === 0) {
-        findings.push("❌ No payment options (accepts/paymentRequirements) found");
+        findings.push("[FAIL] No payment options (accepts/paymentRequirements) found");
         score -= 15;
       } else {
-        findings.push(`✅ Found ${accepts.length} payment option(s)`);
+        findings.push(`[PASS] Found ${accepts.length} payment option(s)`);
 
         // Check each option
         for (let i = 0; i < accepts.length; i++) {
@@ -118,42 +118,42 @@ export default async function handler(req: Request): Promise<Response> {
           const prefix = `  Option ${i + 1}:`;
 
           if (opt.scheme) {
-            findings.push(`${prefix} scheme="${opt.scheme}" ✅`);
+            findings.push(`${prefix} scheme="${opt.scheme}" [PASS]`);
           } else {
-            findings.push(`${prefix} missing scheme ❌`);
+            findings.push(`${prefix} missing scheme [FAIL]`);
             score -= 5;
           }
 
           if (opt.network) {
-            findings.push(`${prefix} network="${opt.network}" ✅`);
+            findings.push(`${prefix} network="${opt.network}" [PASS]`);
             // Check CAIP format
             if (
               opt.network.startsWith("eip155:") ||
               opt.network.startsWith("solana:")
             ) {
-              findings.push(`${prefix} CAIP-2 network format ✅`);
+              findings.push(`${prefix} CAIP-2 network format [PASS]`);
             } else {
-              findings.push(`${prefix} non-standard network format ⚠️`);
+              findings.push(`${prefix} non-standard network format [WARN]`);
               score -= 3;
             }
           } else {
-            findings.push(`${prefix} missing network ❌`);
+            findings.push(`${prefix} missing network [FAIL]`);
             score -= 5;
           }
 
           if (opt.payTo) {
-            findings.push(`${prefix} payTo present ✅`);
+            findings.push(`${prefix} payTo present [PASS]`);
           } else {
-            findings.push(`${prefix} missing payTo ❌`);
+            findings.push(`${prefix} missing payTo [FAIL]`);
             score -= 10;
           }
 
           if (opt.price || opt.maxAmountRequired) {
             findings.push(
-              `${prefix} price=${opt.price || opt.maxAmountRequired} ✅`
+              `${prefix} price=${opt.price || opt.maxAmountRequired} [PASS]`
             );
           } else {
-            findings.push(`${prefix} missing price ❌`);
+            findings.push(`${prefix} missing price [FAIL]`);
             score -= 5;
           }
         }
@@ -161,9 +161,9 @@ export default async function handler(req: Request): Promise<Response> {
 
       // Check for description and mimeType (nice-to-haves)
       if (decoded.description) {
-        findings.push("✅ Includes description metadata");
+        findings.push("[PASS] Includes description metadata");
       } else {
-        findings.push("⚠️  No description metadata (recommended)");
+        findings.push("[WARN]  No description metadata (recommended)");
         score -= 2;
       }
     }
@@ -172,7 +172,7 @@ export default async function handler(req: Request): Promise<Response> {
     const contentType = res.headers.get("content-type") || "";
     if (contentType.includes("application/json") && res.status === 402) {
       findings.push(
-        "ℹ️  402 response has JSON body (V1 pattern — V2 uses headers only)"
+        "[INFO]  402 response has JSON body (V1 pattern — V2 uses headers only)"
       );
     }
 
